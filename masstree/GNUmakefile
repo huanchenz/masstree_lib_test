@@ -36,7 +36,8 @@ libjson.a: json.o string.o straccum.o str.o msgpack.o \
 	$(AR) cru $@ $^
 
 mtIndexAPI.a: mtIndexAPI.o misc.o checkpoint.o $(KVTREES) testrunner.o \
-	kvio.o libjson.a
+	kvio.o json.o string.o straccum.o str.o msgpack.o \
+	clp.o kvrandom.o compiler.o kvthread.o
 	$(AR) cru $@ $^
 
 KVTREES = query_masstree.o \

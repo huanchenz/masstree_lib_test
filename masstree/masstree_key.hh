@@ -214,6 +214,22 @@ class key {
         s_ += ikey_size;
     }
 
+  //huanchen
+  Str get_str() {
+    std::cout << "ikey0_ = " << ikey0_ << "\n";
+    std::cout << "s_ = " << s_ << "\n";
+    std::cout << "first_ = " << first_ << "\n";
+    std::cout << "len_ = " << len_ << "\n";
+    return Str(first_, len_);
+    /*
+    char* buf = (char*)malloc(len_);
+    char* ikey_ptr = (char*)&ikey0_;
+    memcpy(buf, ikey_ptr, ikey_size);
+    memcpy(buf+ikey_size, first_, len_-ikey_size);
+    return Str((const char*)buf, len_);
+    */
+  }
+
   private:
     ikey_type ikey0_;
     int len_;

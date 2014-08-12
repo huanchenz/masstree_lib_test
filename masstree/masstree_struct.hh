@@ -20,6 +20,7 @@
 #include "stringbag.hh"
 #include "mtcounters.hh"
 #include "timestamp.hh"
+
 namespace Masstree {
 
 template <typename P>
@@ -345,6 +346,25 @@ class leaf : public node_base<P> {
         else
             return key_type(ikey0_[p], ksuf(p));
     }
+
+  //huanchen
+  //=======================================================================
+  Str key_str(int p) const {
+    //std::cout << "ikey0_ = " << ikey0_[p] << "\n";
+    //std::cout << "ksuf = " << ksuf(p).s << "\n";
+    int ikey_size = sizeof(ikey_type);
+    int ksuf_size = ksuf(p).len;
+    int s = ikey_size + ksuf_size;
+    char* key_char = (char*)malloc(s);
+    char* ikey0_char = (char*)&(ikey0_[p]);
+    for (int i = 0; i < ikey_size; i++)
+      key_char[i] = ikey0_char[ikey_size-1-i];
+    memcpy(key_char+ikey_size, ksuf(p).s, ksuf_size);
+    //std::cout << "key = " << key_char << "\tlength = " << s << "\n";
+    return Str(key_char, s);
+  }
+  //=======================================================================
+
     ikey_type ikey(int p) const {
         return ikey0_[p];
     }

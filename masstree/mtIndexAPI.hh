@@ -61,8 +61,9 @@ public:
 
 
   void setup() {
-    ti_ = new threadinfo();
-    ti_->rcu_start();
+    //ti_ = new threadinfo();
+    //ti_->rcu_start();
+    ti_ = threadinfo::make(threadinfo::TI_MAIN, -1);
     table_ = new T;
     table_->initialize(*ti_);
   }
@@ -75,9 +76,60 @@ public:
   void put(const char *key, int keylen, const char *value, int valuelen) {
     put(Str(key, keylen), Str(value, valuelen));
   }
-  
+  /*
+  void put(const char *key, int keylen, uint64_t ivalue) {
+    quick_istr value(ivalue);
+    put(Str(key, keylen), value.string());
+  }
+  */
+  bool get(const Str &key, Str &value) {
+    return q_[0].run_get1(table_->table(), key, 0, value, *ti_);
+  }
+
   bool get(const char *key, int keylen, Str &value) {
     return q_[0].run_get1(table_->table(), Str(key, keylen), 0, value, *ti_);
+  }
+
+  void get_lower_bound(const char *key, int keylen, Str &retKey) {
+    q_[0].run_get1_lower_bound(table_->table(), Str(key, keylen), retKey, *ti_);
+  }
+
+  bool get_next(const Str &cur_key, Str &key, Str &value) {
+    std::vector<Str> keys;
+    std::vector<Str> values;
+    Json req = Json::array(0, 0, cur_key, 2);
+    q_[0].run_scan(table_->table(), req, *ti_);
+    //output_scan(req, keys, values);
+    keys.clear();
+    values.clear();
+    for (int i = 2; i != req.size(); i += 2) {
+      keys.push_back(req[i].as_s());
+      values.push_back(req[i + 1].as_s());
+    }
+    if ((keys.size() < 2) || (values.size() < 2))
+      return false;
+    key = keys[1];
+    value = values[1];
+    return true;
+  }
+
+  bool get_next(const char *cur_key, int cur_keylen, Str &key, Str &value) {
+    std::vector<Str> keys;
+    std::vector<Str> values;
+    Json req = Json::array(0, 0, Str(cur_key, cur_keylen), 2);
+    q_[0].run_scan(table_->table(), req, *ti_);
+    //output_scan(req, keys, values);
+    keys.clear();
+    values.clear();
+    for (int i = 2; i != req.size(); i += 2) {
+      keys.push_back(req[i].as_s());
+      values.push_back(req[i + 1].as_s());
+    }
+    if ((keys.size() < 2) || (values.size() < 2))
+      return false;
+    key = keys[1];
+    value = values[1];
+    return true;
   }
 
   bool remove(const char *key, int keylen) {

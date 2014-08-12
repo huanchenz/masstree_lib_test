@@ -11,7 +11,7 @@
 #define CACHE_LINE_SIZE 64
 
 /* Define to enable debugging assertions. */
-/* #undef ENABLE_ASSERTIONS */
+#define ENABLE_ASSERTIONS 1
 
 /* Define to enable invariant assertions. */
 /* #undef ENABLE_INVARIANTS */
