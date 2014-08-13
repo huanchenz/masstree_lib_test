@@ -54,16 +54,22 @@ class query {
     template <typename T>
     bool run_get1(T& table, Str key, int col, Str& value, threadinfo& ti);
 
-    // huanchen
+    //huanchen
     //----------------------------------------------------------------------------
     template <typename T>
     void run_get1_lower_bound(T& table, Str key, Str& retKey, threadinfo& ti);
     //----------------------------------------------------------------------------
 
+    //huanchen
+    //----------------------------------------------------------------------------
+    template <typename T>
+    void run_get1_upper_bound(T& table, Str key, Str& retKey, threadinfo& ti);
+    //----------------------------------------------------------------------------
+
     template <typename T>
     result_t run_put(T& table, Str key,
                      const Json* firstreq, const Json* lastreq, threadinfo& ti);
-    // huanchen
+    //huanchen
     //----------------------------------------------------------------------------
     template <typename T>
     result_t run_append(T& table, Str key, Str value, threadinfo& ti);
@@ -163,6 +169,16 @@ template <typename R> template <typename T>
 void query<R>::run_get1_lower_bound(T& table, Str key, Str& retKey, threadinfo& ti) {
     typename T::unlocked_cursor_type lp(table, key);
     int kp = lp.find_unlocked_lower_bound(ti);
+    retKey = lp.node()->key_str(kp);
+}
+//==================================================================================================
+
+//huanchen
+//==================================================================================================
+template <typename R> template <typename T>
+void query<R>::run_get1_upper_bound(T& table, Str key, Str& retKey, threadinfo& ti) {
+    typename T::unlocked_cursor_type lp(table, key);
+    int kp = lp.find_unlocked_upper_bound(ti);
     retKey = lp.node()->key_str(kp);
 }
 //==================================================================================================

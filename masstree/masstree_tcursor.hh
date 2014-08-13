@@ -60,6 +60,7 @@ class unlocked_tcursor {
 
     bool find_unlocked(threadinfo& ti);
     int find_unlocked_lower_bound(threadinfo& ti); //huanchen
+    int find_unlocked_upper_bound(threadinfo& ti); //huanchen
 
     inline value_type value() const {
         return lv_.value();
@@ -82,8 +83,10 @@ class unlocked_tcursor {
 
     inline int lower_bound_binary() const;
     inline int lower_bound_linear() const;
-    inline int lower_bound_binary_lower_bound() const;
-    inline int lower_bound_linear_lower_bound() const;
+    inline int lower_bound_binary_lower_bound() const; //huanchen
+    inline int lower_bound_linear_lower_bound() const; //huanchen
+    inline int upper_bound_binary() const; //huanchen
+    inline int upper_bound_linear() const; //huanchen
 };
 
 template <typename P>

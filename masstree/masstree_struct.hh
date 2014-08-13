@@ -353,13 +353,18 @@ class leaf : public node_base<P> {
     //std::cout << "ikey0_ = " << ikey0_[p] << "\n";
     //std::cout << "ksuf = " << ksuf(p).s << "\n";
     int ikey_size = sizeof(ikey_type);
-    int ksuf_size = ksuf(p).len;
+    int ksuf_size;
+    if (has_ksuf(p))
+      ksuf_size = ksuf(p).len;
+    else
+      ksuf_size = 0;
     int s = ikey_size + ksuf_size;
     char* key_char = (char*)malloc(s);
     char* ikey0_char = (char*)&(ikey0_[p]);
     for (int i = 0; i < ikey_size; i++)
       key_char[i] = ikey0_char[ikey_size-1-i];
-    memcpy(key_char+ikey_size, ksuf(p).s, ksuf_size);
+    if (ksuf_size != 0)
+      memcpy(key_char+ikey_size, ksuf(p).s, ksuf_size);
     //std::cout << "key = " << key_char << "\tlength = " << s << "\n";
     return Str(key_char, s);
   }

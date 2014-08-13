@@ -94,6 +94,10 @@ public:
     q_[0].run_get1_lower_bound(table_->table(), Str(key, keylen), retKey, *ti_);
   }
 
+  void get_upper_bound(const char *key, int keylen, Str &retKey) {
+    q_[0].run_get1_upper_bound(table_->table(), Str(key, keylen), retKey, *ti_);
+  }
+
   bool get_next(const Str &cur_key, Str &key, Str &value) {
     std::vector<Str> keys;
     std::vector<Str> values;

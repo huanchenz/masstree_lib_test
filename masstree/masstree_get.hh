@@ -54,6 +54,8 @@ inline int unlocked_tcursor<P>::lower_bound_linear() const
     return -1;
 }
 
+//huanchen
+//=======================================================================================
 template <typename P>
 inline int unlocked_tcursor<P>::lower_bound_binary_lower_bound() const
 {
@@ -102,8 +104,73 @@ inline int unlocked_tcursor<P>::lower_bound_linear_lower_bound() const
 	//std::cout << "l = " << l << "\tr = " << r << "\n";
     }
     //return (r==0) ? perm_[0] : perm_[r-1];
+    if (l == 0)
+      lp = perm_[l];
+    else
+      lp = perm_[l-1];
+
     return lp;
 }
+//=======================================================================================
+
+//huanchen
+//=======================================================================================
+template <typename P>
+inline int unlocked_tcursor<P>::upper_bound_binary() const
+{
+    int l = 0, r = perm_.size();
+    int m, mp;
+    //std::cout << "l = " << l << "\tr = " << r << "\n";
+    while (l < r) {
+        m = (l + r) >> 1;
+        mp = perm_[m];
+	//std::cout << "\tm = " << m << "\tmp = " << mp << "\n";
+        int cmp = key_compare(ka_, *n_, mp);
+        if (cmp < 0)
+            r = m;
+        else if (cmp == 0)
+            return mp;
+        else
+            l = m + 1;
+	//std::cout << "l = " << l << "\tr = " << r << "\n";
+    }
+    m = (l + r) >> 1;
+    if (m == perm_.size())
+      mp = perm_[m-1];
+    else
+      mp = perm_[m];
+    
+    //return (r==0) ? perm_[0] : perm_[r-1];
+    return mp;
+}
+
+template <typename P>
+inline int unlocked_tcursor<P>::upper_bound_linear() const
+{
+    int l = 0, r = perm_.size();
+    int lp;
+    //std::cout << "l = " << l << "\tr = " << r << "\n";
+    while (l < r) {
+        lp = perm_[l];
+	//std::cout << "lp = " << lp << "\n";
+        int cmp = key_compare(ka_, *n_, lp);
+        if (cmp < 0)
+            break;
+        else if (cmp == 0)
+            return lp;
+        else
+            ++l;
+	//std::cout << "l = " << l << "\tr = " << r << "\n";
+    }
+    //return (r==0) ? perm_[0] : perm_[r-1];
+    if (l == perm_.size())
+      lp = perm_[l-1];
+    else
+      lp = perm_[l];
+
+    return lp;
+}
+//=======================================================================================
 
 template <typename P>
 bool unlocked_tcursor<P>::find_unlocked(threadinfo& ti)
@@ -173,6 +240,55 @@ int unlocked_tcursor<P>::find_unlocked_lower_bound(threadinfo& ti)
         kp = lower_bound_binary_lower_bound();
     else
         kp = lower_bound_linear_lower_bound();
+    if (kp >= 0) {
+        keylenx = n_->keylenx_[kp];
+        fence();                // see note in check_leaf_insert()
+        lv_ = n_->lv_[kp];
+        lv_.prefetch(keylenx);
+        //ksuf_match = n_->ksuf_equals(kp, ka_, keylenx);
+    }
+    if (n_->has_changed(v_)) {
+        ti.mark(threadcounter(tc_stable_leaf_insert + n_->simple_has_split(v_)));
+        n_ = n_->advance_to_key(ka_, v_, ti);
+        goto forward;
+    }
+
+    if (kp < 0)
+        return 0;
+    else if (n_->keylenx_is_layer(keylenx)) {
+        if (likely(n_->keylenx_is_stable_layer(keylenx))) {
+            ka_.shift();
+            root = lv_.layer();
+            goto retry;
+        } else
+            goto forward;
+    } else
+        return kp;
+}
+//====================================================================================================
+
+//huanchen
+//====================================================================================================
+template <typename P>
+int unlocked_tcursor<P>::find_unlocked_upper_bound(threadinfo& ti)
+{
+  //bool ksuf_match = false;
+    int kp, keylenx = 0;
+    node_base<P>* root = const_cast<node_base<P>*>(root_);
+
+ retry:
+    n_ = root->reach_leaf(ka_, v_, ti);
+
+ forward:
+    if (v_.deleted())
+        goto retry;
+
+    n_->prefetch();
+    perm_ = n_->permutation();
+    if (leaf<P>::bound_type::is_binary)
+        kp = upper_bound_binary();
+    else
+        kp = upper_bound_linear();
     if (kp >= 0) {
         keylenx = n_->keylenx_[kp];
         fence();                // see note in check_leaf_insert()

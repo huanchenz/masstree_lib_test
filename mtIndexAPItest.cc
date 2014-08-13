@@ -29,7 +29,7 @@ int main () {
   std::cout << get_success << "\t" << value.s << "\n";
 
 
-  std::cout << "\nPARTIAL KEY GET test\n";
+  std::cout << "\nPARTIAL KEY GET test --- lower bound\n";
   Str retKey1;
   Str retKey2;
   Str retKey3;
@@ -57,17 +57,35 @@ int main () {
   get_success = mti.get(retKey5, value);
   std::cout << get_success << "\t" << value.s << "\n";
 
+  std::cout << "\nPARTIAL KEY GET test --- upper bound\n";
+  mti.get_upper_bound("apple", 5, retKey1);
+  mti.get_upper_bound("icecream", 8, retKey2);
+  mti.get_upper_bound("yingjie", 7, retKey3);
+  mti.get_upper_bound("zhuzhu", 6, retKey4);
+  mti.get_upper_bound("zhuozhuozhuo", 12, retKey5);
+
+  get_success = mti.get(retKey1, value);
+  std::cout << get_success << "\t" << value.s << "\n";
+  get_success = mti.get(retKey2, value);
+  std::cout << get_success << "\t" << value.s << "\n";
+  get_success = mti.get(retKey3, value);
+  std::cout << get_success << "\t" << value.s << "\n";
+  get_success = mti.get(retKey4, value);
+  std::cout << get_success << "\t" << value.s << "\n";
+  get_success = mti.get(retKey5, value);
+  std::cout << get_success << "\t" << value.s << "\n";
+
   std::cout << "\nGET_NEXT test\n";
   Str retKey6;
   Str key;
   mti.get_lower_bound("apple", 5, retKey6);
   std::cout << retKey6.s << "\n";
-  mti.get_next(retKey6, key, value);
-  std::cout << "key: " << key.s << "\tvalue: " << value.s << "\n";
-  mti.get_next(key, key, value);
-  std::cout << "key: " << key.s << "\tvalue: " << value.s << "\n";
-  mti.get_next(key, key, value);
-  std::cout << "key: " << key.s << "\tvalue: " << value.s << "\n";
+  get_success = mti.get_next(retKey6, key, value);
+  std::cout << get_success << "\t" << "key: " << key.s << "\tvalue: " << value.s << "\n";
+  get_success = mti.get_next(key, key, value);
+  std::cout << get_success << "\t" << "key: " << key.s << "\tvalue: " << value.s << "\n";
+  get_success = mti.get_next(key, key, value);
+  std::cout << get_success << "\t" << "key: " << key.s << "\tvalue: " << value.s << "\n";
   
 
   std::cout << "\nREMOVE test\n";
